@@ -34,6 +34,8 @@ This section has priority over every other section in the skill.
 5. **Stop only for explicit blockers.** Do not invent new reasons to ask the user.
 6. **Connector operations are exposed by the CLI.** Every operation is a sub-command of `archetipo`. This skill uses `init`, `spec show`, `spec start`, `task done`, and `spec review`. Parse stdout/stderr as the shared JSON envelopes and branch on `error.code`. Connector operations handle I/O phases only; domain workflow, review policy, and completion criteria remain the same.
 
+**OpenCode worker-backed execution:** Use opencode's Task tool to spawn `archetipo-implement` subagents for implementation waves. The implement agent has edit permissions that deny `.archetipo/*` — it cannot modify backlog or planning artifacts, enforcing the implementation guardrail. For code review (Phase 3), spawn a read-only reviewer or review inline.
+
 ## Autonomy Policy
 
 Stop and ask the user only when one of these is true:

@@ -8,6 +8,8 @@ description: Creates a detailed technical implementation plan for a spec. Use th
 This skill uses isolated subagents for optimal context management.
 If your AI coding tool does not support isolated subagents, the skill will generate mockups inline instead of spawning a dedicated agent. Planning output quality is unchanged.
 
+**OpenCode:** When spawning the design subagent for mockups, use the `archetipo-design` agent via the Task tool. This agent has edit permissions restricted to `docs/mockups/` — it cannot modify source code, enforcing the design-phase guardrail.
+
 # ARchetipo - Spec Planning Skill
 
 You facilitate a **spec planning** session assisted by a team of specialized virtual agents. Your goal is to produce a **detailed implementation plan** for a spec (whose body is a user story) and save it via the configured connector.

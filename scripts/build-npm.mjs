@@ -7,6 +7,7 @@
 //
 // Layout expected after this script runs:
 //   npm/archetipo/skills/<skill>/...
+//   npm/archetipo/agents/<agent>.md...
 //   npm/archetipo/runtime/{config.yaml,shared-runtime.md}
 //   npm/archetipo-<os>-<cpu>/bin/archetipo[.exe]
 
@@ -19,6 +20,7 @@ const repoRoot = path.resolve(__dirname, "..");
 const distDir = path.join(repoRoot, "cli", "dist");
 const npmDir = path.join(repoRoot, "npm");
 const skillsSrc = path.join(repoRoot, "skills");
+const agentsSrc = path.join(repoRoot, "agents");
 const runtimeSrc = path.join(repoRoot, ".archetipo");
 
 const version = process.argv[2];
@@ -91,6 +93,11 @@ async function syncAssets() {
   await emptyDir(skillsDst);
   await copyDir(skillsSrc, skillsDst);
   console.log("✓ archetipo/skills/");
+
+  const agentsDst = path.join(npmDir, "archetipo", "agents");
+  await emptyDir(agentsDst);
+  await copyDir(agentsSrc, agentsDst);
+  console.log("✓ archetipo/agents/");
 
   const runtimeDst = path.join(npmDir, "archetipo", "runtime");
   await emptyDir(runtimeDst);

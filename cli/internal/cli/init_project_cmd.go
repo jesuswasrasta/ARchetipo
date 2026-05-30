@@ -19,13 +19,14 @@ type toolDef struct {
 	Key         string
 	Name        string
 	ProjectPath string // relative to cwd, e.g. ".claude/skills"
+	AgentsPath  string // relative to cwd, e.g. ".opencode/agents" (empty if not applicable)
 }
 
 var allTools = []toolDef{
 	{Key: "claude", Name: "Claude Code", ProjectPath: ".claude/skills"},
 	{Key: "codex", Name: "Codex", ProjectPath: ".agents/skills"},
 	{Key: "gemini", Name: "Gemini CLI", ProjectPath: ".gemini/skills"},
-	{Key: "opencode", Name: "OpenCode", ProjectPath: ".opencode/skills"},
+	{Key: "opencode", Name: "OpenCode", ProjectPath: ".opencode/skills", AgentsPath: ".opencode/agents"},
 	{Key: "copilot", Name: "GitHub Copilot", ProjectPath: ".github/skills"},
 	{Key: "pi", Name: "Pi", ProjectPath: ".pi/skills"},
 }
@@ -37,6 +38,15 @@ var allSkills = []string{
 	"archetipo-inception",
 	"archetipo-plan",
 	"archetipo-spec",
+}
+
+var allAgents = []string{
+	"archetipo-autopilot.md",
+	"archetipo-design.md",
+	"archetipo-implement.md",
+	"archetipo-inception.md",
+	"archetipo-plan.md",
+	"archetipo-spec.md",
 }
 
 func newInitProjectCmd(s streams) *cobra.Command {
@@ -124,6 +134,25 @@ func runInitProject(s streams, toolFlags []string, connectorFlag string, assumeY
 			}
 		}
 		fmt.Fprintf(s.out, "  ✓ %s → %s\n", t.Name, target)
+
+		if t.AgentsPath != "" {
+			agentsDest := t.AgentsPath
+			if err := os.MkdirAll(agentsDest, 0o755); err != nil {
+				return iox.NewInternal("cannot create "+agentsDest, err)
+			}
+			agentsSrc := filepath.Join(dataDir, "agents")
+			for _, ag := range allAgents {
+				src := filepath.Join(agentsSrc, ag)
+				dst := filepath.Join(agentsDest, ag)
+				if _, err := os.Stat(src); err != nil {
+					return iox.NewPrecondition("agent missing in package: "+ag, "reinstall the CLI", err)
+				}
+				if err := copyFile(src, dst); err != nil {
+					return iox.NewInternal("copy agent "+ag, err)
+				}
+			}
+			fmt.Fprintf(s.out, "  ✓ %s agents → %s\n", t.Name, agentsDest)
+		}
 	}
 
 	if err := installRuntimeAssets(s, runtimeDir, conn, assumeYes); err != nil {

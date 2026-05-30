@@ -15,7 +15,7 @@ This skill requires **isolated subagent/worker support** from your AI coding too
 | Codex.ai | **Not supported** — lacks subagents |
 | GitHub Copilot | **Not supported** — lacks subagents |
 | Cursor | **Not supported** — lacks subagents |
-| OpenCode | **Not supported** — lacks subagents |
+| OpenCode (Task tool) | Supported |
 
 **If your tool is not supported**, run the pipeline manually:
 1. `/archetipo-plan US-XXX` for each spec
