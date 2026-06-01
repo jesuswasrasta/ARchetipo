@@ -41,3 +41,4 @@ npm/archetipo-*/bin/archetipo.exe
 npm/*/*.tgz
 cli/dist/
 cli/archetipo-bin
+.idea/
