@@ -28,13 +28,11 @@ Read `.archetipo/shared-runtime.md` for Language Policy, Assumptions and Questio
 This section has priority over every other section in the skill.
 
 1. **Autonomous by default.** Proceed without asking for confirmation unless an explicit blocker is hit.
-2. **Worker-backed execution is preferred.** When the runtime supports reliable workers/subagents, execute every wave through worker contexts with clean handoffs, even when tasks inside that wave must run sequentially.
+2. **Worker-backed execution is preferred.** Use the **Task tool** to spawn isolated subagents (e.g. `archetipo-design` for mockup verification, or `general` for parallel independent tasks) when clean context isolation per wave adds value.
 3. **Concurrency is conditional.** Run multiple workers concurrently only when tasks in the same wave are truly independent.
-4. **In-context fallback is non-blocking.** If workers are unavailable, unreliable, or not worth the overhead, execute the same pipeline in the current context. Lack of worker support is not an error and not a reason to stop.
+4. **In-context fallback is non-blocking.** If the Task tool is unavailable or overhead exceeds benefit, execute the same pipeline in the current context. This is not an error and not a reason to stop.
 5. **Stop only for explicit blockers.** Do not invent new reasons to ask the user.
 6. **Connector operations are exposed by the CLI.** Every operation is a sub-command of `archetipo`. This skill uses `init`, `spec show`, `spec start`, `task done`, and `spec review`. Parse stdout/stderr as the shared JSON envelopes and branch on `error.code`. Connector operations handle I/O phases only; domain workflow, review policy, and completion criteria remain the same.
-
-**OpenCode worker-backed execution:** Use opencode's Task tool to spawn `archetipo-implement` subagents for implementation waves. The implement agent has edit permissions that deny `.archetipo/*` — it cannot modify backlog or planning artifacts, enforcing the implementation guardrail. For code review (Phase 3), spawn a read-only reviewer or review inline.
 
 ## Autonomy Policy
 
@@ -58,25 +56,24 @@ If a situation is ambiguous, prefer continuing when the adaptation is local and 
 
 ### Worker-backed preferred
 
-Use workers/subagents when:
-- the runtime supports parallel work reliably
+Use the **Task tool** to spawn subagents when:
 - clean execution context per wave or task is valuable
 - Mina can work from stable interfaces or contracts
 - Cesare can review diffs in a separate context
 
 In worker-backed mode:
-- every wave is executed through one or more workers, even if the wave is sequential
-- sequential waves may still use one worker per task or one worker per wave, as long as the execution context stays isolated from the main orchestrator
-- concurrent fan-out is used only for truly independent tasks
+- use `Task tool` with `subagent_type: "general"` for independent parallel tasks within a wave
+- sequential waves use one Task call per task, waiting for completion before the next
+- concurrent fan-out uses multiple Task calls in a single message for truly independent tasks
 
 ### In-context fallback
 
-Use a single orchestrator when:
-- worker/subagent support is missing or unreliable
-- the repo or runtime makes coordination costlier than execution
+Execute in the current context when:
+- Task tool overhead exceeds the benefit (e.g., simple single-task waves)
+- the wave is small enough that context isolation adds no value
 
 **Important:** Worker-backed execution and concurrent execution are separate decisions.
-**Important:** Lack of worker/subagent support is not a blocker. Continue in `in-context fallback`.
+**Important:** Lack of Task tool reliability is not a blocker. Continue in `in-context fallback`.
 Do not avoid worker-backed execution only because a wave must be scheduled sequentially.
 
 ## Working Rules

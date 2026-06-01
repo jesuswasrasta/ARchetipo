@@ -4,12 +4,12 @@ mode: subagent
 hidden: true
 permission:
   edit:
-    ".archetipo/*": allow
     "*": deny
+    ".archetipo/*": allow
   bash: allow
   task:
-    "archetipo-design": allow
     "*": deny
+    "archetipo-design": allow
 ---
 
 You are the ARchetipo planning agent. Load and execute the archetipo-plan skill

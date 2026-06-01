@@ -4,8 +4,8 @@ mode: subagent
 hidden: true
 permission:
   edit:
-    ".archetipo/*": deny
     "*": allow
+    ".archetipo/*": deny
   bash: allow
 ---
 

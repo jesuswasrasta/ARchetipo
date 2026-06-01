@@ -4,15 +4,15 @@ mode: subagent
 hidden: true
 permission:
   edit:
+    "*": deny
     ".archetipo/autopilot-state-*": allow
     ".archetipo/tmp-*": allow
-    "*": deny
   bash: allow
   task:
+    "*": deny
     "archetipo-plan": allow
     "archetipo-implement": allow
     "archetipo-design": allow
-    "*": deny
 ---
 
 You are the ARchetipo autopilot agent (Direttore d'Orchestra). Load and execute the

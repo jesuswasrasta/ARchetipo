@@ -4,9 +4,9 @@ mode: subagent
 hidden: true
 permission:
   edit:
+    "*": deny
     "docs/mockups/**": allow
     ".archetipo/*": allow
-    "*": deny
   bash: allow
 ---
 

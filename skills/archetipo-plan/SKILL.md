@@ -3,12 +3,9 @@ name: archetipo-plan
 description: Creates a detailed technical implementation plan for a spec. Use this skill whenever the user wants to plan a spec, break down a feature into technical tasks, create an implementation plan, do sprint planning, prepare a spec for development or estimate a feature. Also triggers on requests like "plan this", "break this down", "what are the tasks for this spec", or "how would we build this". The spec can be passed by code (e.g., US-005) or as a free-text description — the skill handles both automatically.
 ---
 
-## Subagents capability
+## Subagent Delegation
 
-This skill uses isolated subagents for optimal context management.
-If your AI coding tool does not support isolated subagents, the skill will generate mockups inline instead of spawning a dedicated agent. Planning output quality is unchanged.
-
-**OpenCode:** When spawning the design subagent for mockups, use the `archetipo-design` agent via the Task tool. This agent has edit permissions restricted to `docs/mockups/` — it cannot modify source code, enforcing the design-phase guardrail.
+This skill uses the **Task tool** to spawn an isolated `archetipo-design` subagent for mockup generation when UI work is detected. If the Task tool call fails, generate mockups inline instead.
 
 # ARchetipo - Spec Planning Skill
 
@@ -124,8 +121,8 @@ Silently perform all of the following — this is your chain of thought, not vis
 
 If the spec requires **new user interface** (new pages, significant UI components, or substantial layout changes):
 
-**If subagent/worker support is available:**
-1. Spawn an agent that invokes `/archetipo-design` with:
+**If subagent support is available (Task tool):**
+1. Use the **Task tool** with `subagent_type: "archetipo-design"` and a prompt containing:
    - The full spec (code, title, user-story body, acceptance criteria)
    - A summary of the technical solution (UI-relevant aspects)
    - Frontend framework/design system info
@@ -134,7 +131,7 @@ If the spec requires **new user interface** (new pages, significant UI component
 2. **Wait for mockup completion before proceeding.** When running inside an autopilot pipeline, background agents are destroyed when the parent subagent's context is destroyed. The mockup agent MUST complete within the plan subagent's lifecycle.
 3. After the mockup agent completes, verify that at least one file exists in `{config.paths.mockups}/{US-CODE}/` before setting `mockup_generated = true`. If no files exist, log a warning and set `mockup_generated = false`.
 
-**If subagent/worker support is NOT available:**
+**If Task tool call fails or is unavailable:**
 1. Load `skills/archetipo-design/SKILL.md` and apply its workflow inline — design rules, aesthetic guidelines, and output constraints live there and must not be duplicated here.
 2. Save mockup files to `{config.paths.mockups}/{US-CODE}/` as instructed by the design skill.
 3. After generation, verify at least one file exists: set `mockup_generated = true` on success, or `mockup_generated = false` with a warning if the directory is empty.

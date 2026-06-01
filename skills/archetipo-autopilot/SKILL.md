@@ -3,23 +3,20 @@ name: archetipo-autopilot
 description: Runs the full archetipo pipeline autonomously on backlog specs — for each TODO spec (by priority), spawns clean isolated subagents to plan and implement in sequence, verifying status transitions between steps. Use this skill when the user wants to "run everything", "implement all specs", "autopilot the backlog", "plan and implement everything", "batch process the entire backlog", "fai tutto in autonomia", "esegui tutto dal backlog", or any variation of fully autonomous end-to-end execution from backlog to working code. This skill differs from archetipo-loop because it chains multiple steps (plan → implement) per spec as an atomic pipeline unit, rather than running a single command repeatedly.
 ---
 
-## Compatibility
+## Subagent Delegation
 
-This skill requires **isolated subagent/worker support** from your AI coding tool.
+This skill spawns isolated subagents using the **Task tool** with the appropriate `subagent_type`.
 
-| Tool | Status |
-|---|---|
-| Claude Code (Agent tool) | Supported |
-| Gemini CLI (`create_sub_agent`) | Supported |
-| Roo Code (`new_task` / Orchestrator) | Supported |
-| Codex.ai | **Not supported** — lacks subagents |
-| GitHub Copilot | **Not supported** — lacks subagents |
-| Cursor | **Not supported** — lacks subagents |
-| OpenCode (Task tool) | Supported |
+To spawn a pipeline step, use the Task tool like this:
 
-**If your tool is not supported**, run the pipeline manually:
-1. `/archetipo-plan US-XXX` for each spec
-2. `/archetipo-implement US-XXX` for each spec
+```
+Task tool call:
+  subagent_type: "archetipo-plan" | "archetipo-implement" | "archetipo-design"
+  prompt: <the subagent prompt as specified in Phase 1>
+  description: "Plan US-XXX" | "Implement US-XXX" | "Design US-XXX"
+```
+
+Each Task call creates a fully isolated subagent context that starts fresh, executes the step, and returns a summary. This is the mechanism that replaces "spawn a subagent" throughout this skill.
 
 # ARchetipo Autopilot — Autonomous Pipeline Execution
 
@@ -460,10 +457,4 @@ Specs with `result: completed` or `result: skipped` are never re-processed.
 
 ## Requirements
 
-This skill requires an AI coding tool that supports these capabilities:
-- Isolated subagents or worker contexts
-- Passing a working directory and a short task prompt to each subagent
-- Independent execution of sequential pipeline steps without shared residual context
-- Reading project context, config, backlog, and repository files from the subagent context itself
-
-Any agentic IDE or CLI that provides these capabilities is compatible; the skill logic must remain capability-based rather than vendor-specific.
+This skill requires OpenCode's **Task tool** to spawn isolated subagents. Each subagent type (`archetipo-plan`, `archetipo-implement`, `archetipo-design`) corresponds to a configured OpenCode agent in `.opencode/agents/`.
